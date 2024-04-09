@@ -140,7 +140,8 @@ __device__ void updateKBest(const float3& ref, const float3& point, float* knn, 
 			float t = knn[j];
 			knn[j] = dist;
 			dist = t;
-			*replace_idx = j;
+			if (*replace_idx == -1)
+				*replace_idx = j;
 		}
 	}
 }
@@ -171,7 +172,7 @@ __global__ void boxTopKDist(uint32_t P, float3* points, uint32_t* indices, MinMa
 	{
 		MinMax box = boxes[b];
 		float dist = distBoxPoint(box, point);
-		if (dist > reject || dist > best[2])
+		if (dist > reject || dist > best[TOPK-1])
 			continue;
 
 		for (int i = b * BOX_SIZE; i < min(P, (b + 1) * BOX_SIZE); i++)
@@ -180,7 +181,15 @@ __global__ void boxTopKDist(uint32_t P, float3* points, uint32_t* indices, MinMa
 				continue;
 			updateKBest<TOPK>(point, points[indices[i]], best, replace_idx);
 			if (replace_idx[0] > -1) {
-				best_idx[replace_idx[0]] = indices[i];
+				uint32_t tmp = indices[i];
+				if (best_idx[replace_idx[0]] == FLT_MAX)
+					best_idx[replace_idx[0]] = tmp;
+				else
+					for (int k = replace_idx[0]; k < TOPK; k++) {
+						uint32_t tmp2 = best_idx[k];
+						best_idx[k] = tmp;
+						tmp = tmp2;
+					}
 				replace_idx[0] = -1;
 			}
 		}
