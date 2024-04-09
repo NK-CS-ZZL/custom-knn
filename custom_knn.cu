@@ -142,13 +142,7 @@ __device__ void updateKBest(const float3& ref, const float3& point, float* knn, 
 			dist = t;
 			*replace_idx = j;
 		}
-		if (idx == 1)
-			printf("Idx %d KNN: %d, value: %f\n", idx, j, dist);
 	}
-	if (idx == 1)
-		for (int j = 0; j < K; j++){
-			printf("Idx %d KNN value: %f\n", idx, knn[j]);
-		}
 }
 
 __global__ void boxTopKDist(uint32_t P, float3* points, uint32_t* indices, MinMax* boxes, float* dists, int* topKIdx)
@@ -167,9 +161,6 @@ __global__ void boxTopKDist(uint32_t P, float3* points, uint32_t* indices, MinMa
 			continue;
 		updateKBest<TOPK>(point, points[indices[i]], best, replace_idx);
 	}
-	if (idx == 1)
-		printf("indices[idx] %d\n", indices[idx]);
-		printf("Idx %d: end prefiliter\n", idx);
 	
 	float reject = best[TOPK-1];
     for (int i = 0; i < TOPK; i++)
