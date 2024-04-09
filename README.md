@@ -4,6 +4,7 @@
 + Based on the [simple-knn](https://github.com/YixunLiang/simple-knn) repo
 + Support to query TOP-K (default 8) neighbours
 + Return their indices and square distance.
++ **Do not guarantee the order of indices when the distance is the same**
 
 ## Usage
 + git clone https://github.com/NK-CS-ZZL/custom-knn.git
